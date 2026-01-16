@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dados Operacionais</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0CBA8C 0%, #00EB89 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #667eea;
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .btn-save:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .message.info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+        
+        .history {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+        
+        .history h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .history-item {
+            background: #f7fafc;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .history-date {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .history-values {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .url-info {
+            margin-top: 30px;
+            padding: 15px;
+            background: #edf2f7;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        
+        .url-info strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .url-info code {
+            background: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: block;
+            margin-top: 5px;
+            word-break: break-all;
+            color: #667eea;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dados Operacionais - Facto</h1>
+        <p class="subtitle">Atualize os indicadores operacionais</p>
+        
+        <div id="loading" class="loading">Carregando dados...</div>
+        
+        <form id="indicadoresForm" style="display: none;">
+            <div class="form-group">
+                <label for="data">Data</label>
+                <input type="date" id="data" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="absenteismo_diario">Absenteísmo Diário (%)</label>
+                <input type="number" id="absenteismo_diario" step="0.01" placeholder="Ex: 48.61" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="absenteismo_mensal">Absenteísmo Mensal (%)</label>
+                <input type="number" id="absenteismo_mensal" step="0.01" placeholder="Ex: 22.22" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="turnover">Turnover (%)</label>
+                <input type="number" id="turnover" step="0.01" placeholder="Ex: 16.22" required>
+            </div>
+            
+            <button type="submit" class="btn-save" id="btnSalvar">💾 Salvar Indicadores</button>
+        </form>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="history" id="historySection" style="display: none;">
+            <h2>📅 Histórico de Registros</h2>
+            <div id="historyList"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        let registros = [];
+        const JSONBIN_BIN_ID = '696a9edb43b1c97be935659e';
+        const JSONBIN_MASTER_KEY = '$2a$10$BAUoAr6vBCIVArBy6BztFeikS4jBPfJFAxw4FQuMxa7XIWOuijCcW';
+        const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+        
+        // Definir data de hoje como padrão
+        document.getElementById('data').valueAsDate = new Date();
+        
+        // Carregar dados existentes
+        async function carregarDados() {
+            try {
+                const response = await fetch(`${API_URL}/latest`, {
+                    headers: {
+                        'X-Master-Key': JSONBIN_MASTER_KEY
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.record && Array.isArray(data.record)) {
+                        registros = data.record;
+                        atualizarHistorico();
+                    }
+                }
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('indicadoresForm').style.display = 'block';
+                document.getElementById('historySection').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+                document.getElementById('loading').textContent = 'Erro ao carregar. Recarregue a página.';
+                mostrarMensagem('Erro ao carregar dados. Verifique sua conexão.', 'error');
+            }
+        }
+        
+        async function salvarIndicadores(event) {
+            event.preventDefault();
+            
+            const data = document.getElementById('data').value;
+            const absenteismo_diario = parseFloat(document.getElementById('absenteismo_diario').value);
+            const absenteismo_mensal = parseFloat(document.getElementById('absenteismo_mensal').value);
+            const turnover = parseFloat(document.getElementById('turnover').value);
+            
+            if (!data || isNaN(absenteismo_diario) || isNaN(absenteismo_mensal) || isNaN(turnover)) {
+                mostrarMensagem('Por favor, preencha todos os campos corretamente!', 'error');
+                return;
+            }
+            
+            const novoRegistro = {
+                data: data,
+                absenteismo_diario: absenteismo_diario,
+                absenteismo_mensal: absenteismo_mensal,
+                turnover: turnover
+            };
+            
+            // Verificar se já existe registro da mesma data
+            const indiceExistente = registros.findIndex(reg => reg.data === data);
+            
+            if (indiceExistente !== -1) {
+                // Substituir registro existente
+                registros[indiceExistente] = novoRegistro;
+                mostrarMensagem('⚠️ Atualizando registro existente...', 'info');
+            } else {
+                // Adicionar novo registro no início
+                registros.unshift(novoRegistro);
+                mostrarMensagem('➕ Adicionando novo registro...', 'info');
+            }
+            
+            // Desabilitar botão durante o salvamento
+            const btnSalvar = document.getElementById('btnSalvar');
+            btnSalvar.disabled = true;
+            btnSalvar.textContent = 'Salvando...';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_MASTER_KEY
+                    },
+                    body: JSON.stringify(registros)
+                });
+                
+                if (response.ok) {
+                    atualizarHistorico();
+                    mostrarMensagem('✅ Dados salvos com sucesso! Atualize o Power BI.', 'success');
+                    
+                    // Limpar campos de valores mas manter a data
+                    document.getElementById('absenteismo_diario').value = '';
+                    document.getElementById('absenteismo_mensal').value = '';
+                    document.getElementById('turnover').value = '';
+                } else {
+                    mostrarMensagem('❌ Erro ao salvar. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                mostrarMensagem('❌ Erro de conexão. Verifique sua internet.', 'error');
+            } finally {
+                btnSalvar.disabled = false;
+                btnSalvar.textContent = '💾 Salvar Indicadores';
+            }
+        }
+        
+        function atualizarHistorico() {
+            const historyList = document.getElementById('historyList');
+            
+            if (registros.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; text-align: center;">Nenhum registro ainda.</p>';
+                return;
+            }
+            
+            historyList.innerHTML = registros.map(reg => `
+                <div class="history-item">
+                    <div class="history-date">${formatarData(reg.data)}</div>
+                    <div class="history-values">
+                        Abs. Diário: ${reg.absenteismo_diario}% | 
+                        Abs. Mensal: ${reg.absenteismo_mensal}% | 
+                        Turnover: ${reg.turnover}%
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function formatarData(dataStr) {
+            const [ano, mes, dia] = dataStr.split('-');
+            return `${dia}/${mes}/${ano}`;
+        }
+        
+        function mostrarMensagem(texto, tipo) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = texto;
+            messageEl.className = `message ${tipo}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                if (tipo !== 'success') {
+                    messageEl.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
+        // Event Listeners
+        document.getElementById('indicadoresForm').addEventListener('submit', salvarIndicadores);
+        
+        // Carregar dados ao iniciar
+        carregarDados();
+    </script>
+</body>
+</html>
