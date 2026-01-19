@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dados Operacionais</title>
+    <title>Dados Operacionais - Facto</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
         }
         
@@ -54,7 +54,7 @@
             font-size: 14px;
         }
         
-        input {
+        input, select {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e0e0e0;
@@ -63,13 +63,24 @@
             transition: border-color 0.3s;
         }
         
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
         }
         
-        .btn-save {
-            width: 100%;
+        select {
+            cursor: pointer;
+            background-color: white;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-save, .btn-download {
+            flex: 1;
             padding: 15px;
             border: none;
             border-radius: 8px;
@@ -77,9 +88,11 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+        }
+        
+        .btn-save {
             background: #667eea;
             color: white;
-            margin-top: 10px;
         }
         
         .btn-save:hover {
@@ -88,7 +101,18 @@
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
         
-        .btn-save:disabled {
+        .btn-download {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .btn-download:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        .btn-save:disabled, .btn-download:disabled {
             background: #ccc;
             cursor: not-allowed;
             transform: none;
@@ -130,6 +154,22 @@
             font-size: 20px;
         }
         
+        .filter-group {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-group label {
+            margin: 0;
+            min-width: 80px;
+        }
+        
+        .filter-group select {
+            flex: 1;
+        }
+        
         .history-item {
             background: #f7fafc;
             padding: 12px;
@@ -138,39 +178,29 @@
             border-left: 4px solid #667eea;
         }
         
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
         .history-date {
             font-weight: 600;
             color: #667eea;
-            margin-bottom: 5px;
+        }
+        
+        .history-carteira {
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
         }
         
         .history-values {
             font-size: 14px;
             color: #666;
-        }
-        
-        .url-info {
-            margin-top: 30px;
-            padding: 15px;
-            background: #edf2f7;
-            border-radius: 8px;
-            font-size: 12px;
-        }
-        
-        .url-info strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        .url-info code {
-            background: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            display: block;
-            margin-top: 5px;
-            word-break: break-all;
-            color: #667eea;
         }
         
         .loading {
@@ -182,8 +212,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Dados Operacionais - Facto</h1>
-        <p class="subtitle">Atualize os indicadores operacionais</p>
+        <h1>📊 Dados Operacionais - Facto</h1>
+        <p class="subtitle">Atualize os indicadores operacionais por carteira</p>
         
         <div id="loading" class="loading">Carregando dados...</div>
         
@@ -191,6 +221,26 @@
             <div class="form-group">
                 <label for="data">Data</label>
                 <input type="date" id="data" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="carteira">Carteira</label>
+                <select id="carteira" required>
+                    <option value="">Selecione uma carteira</option>
+                    <option value="GERAL">GERAL</option>
+                    <option value="CELULA_TRAINEE_SP">Célula Trainee SP</option>
+                    <option value="CREDIATIVOS">CrediAtivos</option>
+                    <option value="DIGIO">Digio</option>
+                    <option value="PAYJOY">PayJoy</option>
+                    <option value="PICPAY_MATRIZ">PicPay Matriz</option>
+                    <option value="PREVENTIVO">Preventivo</option>
+                    <option value="SERVICOS_PF">Serviços (PF)</option>
+                    <option value="SERVICOS_PJ">Serviços (PJ)</option>
+                    <option value="TECPAR">Tecpar</option>
+                    <option value="THOPEN">Thopen</option>
+                    <option value="TICKET">Ticket</option>
+                    <option value="UME">Ume</option>
+                </select>
             </div>
             
             <div class="form-group">
@@ -208,16 +258,39 @@
                 <input type="number" id="turnover" step="0.01" placeholder="Ex: 16.22" required>
             </div>
             
-            <button type="submit" class="btn-save" id="btnSalvar">💾 Salvar Indicadores</button>
+            <div class="btn-group">
+                <button type="submit" class="btn-save" id="btnSalvar">💾 Salvar</button>
+                <button type="button" class="btn-download" id="btnBaixar" onclick="baixarAnalitico()">📥 Baixar Analítico</button>
+            </div>
         </form>
         
         <div id="message" class="message"></div>
         
         <div class="history" id="historySection" style="display: none;">
-            <h2>📅 Histórico de Registros</h2>
+            <h2>📅 Registros de Hoje</h2>
+            
+            <div class="filter-group">
+                <label for="filtroCarteira">Filtrar:</label>
+                <select id="filtroCarteira">
+                    <option value="">Todas as carteiras</option>
+                    <option value="GERAL">GERAL</option>
+                    <option value="CELULA_TRAINEE_SP">Célula Trainee SP</option>
+                    <option value="CREDIATIVOS">CrediAtivos</option>
+                    <option value="DIGIO">Digio</option>
+                    <option value="PAYJOY">PayJoy</option>
+                    <option value="PICPAY_MATRIZ">PicPay Matriz</option>
+                    <option value="PREVENTIVO">Preventivo</option>
+                    <option value="SERVICOS_PF">Serviços (PF)</option>
+                    <option value="SERVICOS_PJ">Serviços (PJ)</option>
+                    <option value="TECPAR">Tecpar</option>
+                    <option value="THOPEN">Thopen</option>
+                    <option value="TICKET">Ticket</option>
+                    <option value="UME">Ume</option>
+                </select>
+            </div>
+            
             <div id="historyList"></div>
         </div>
-        
     </div>
 
     <script>
@@ -226,8 +299,25 @@
         const JSONBIN_MASTER_KEY = '$2a$10$BAUoAr6vBCIVArBy6BztFeikS4jBPfJFAxw4FQuMxa7XIWOuijCcW';
         const API_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
         
+        const NOMES_CARTEIRAS = {
+            'GERAL': 'GERAL',
+            'CELULA_TRAINEE_SP': 'Célula Trainee SP',
+            'CREDIATIVOS': 'CrediAtivos',
+            'DIGIO': 'Digio',
+            'PAYJOY': 'PayJoy',
+            'PICPAY_MATRIZ': 'PicPay Matriz',
+            'PREVENTIVO': 'Preventivo',
+            'SERVICOS_PF': 'Serviços (PF)',
+            'SERVICOS_PJ': 'Serviços (PJ)',
+            'TECPAR': 'Tecpar',
+            'THOPEN': 'Thopen',
+            'TICKET': 'Ticket',
+            'UME': 'Ume'
+        };
+        
         // Definir data de hoje como padrão
-        document.getElementById('data').valueAsDate = new Date();
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('data').value = hoje;
         
         // Carregar dados existentes
         async function carregarDados() {
@@ -243,18 +333,26 @@
                     
                     if (data.record && Array.isArray(data.record)) {
                         registros = data.record;
-                        atualizarHistorico();
+                    } else {
+                        // Inicializar vazio se não houver dados
+                        registros = [];
                     }
+                } else {
+                    registros = [];
                 }
                 
+                atualizarHistorico();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('indicadoresForm').style.display = 'block';
                 document.getElementById('historySection').style.display = 'block';
                 
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
-                document.getElementById('loading').textContent = 'Erro ao carregar. Recarregue a página.';
-                mostrarMensagem('Erro ao carregar dados. Verifique sua conexão.', 'error');
+                // Inicializar vazio em caso de erro
+                registros = [];
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('indicadoresForm').style.display = 'block';
+                document.getElementById('historySection').style.display = 'block';
             }
         }
         
@@ -262,36 +360,37 @@
             event.preventDefault();
             
             const data = document.getElementById('data').value;
+            const carteira = document.getElementById('carteira').value;
             const absenteismo_diario = parseFloat(document.getElementById('absenteismo_diario').value);
             const absenteismo_mensal = parseFloat(document.getElementById('absenteismo_mensal').value);
             const turnover = parseFloat(document.getElementById('turnover').value);
             
-            if (!data || isNaN(absenteismo_diario) || isNaN(absenteismo_mensal) || isNaN(turnover)) {
+            if (!data || !carteira || isNaN(absenteismo_diario) || isNaN(absenteismo_mensal) || isNaN(turnover)) {
                 mostrarMensagem('Por favor, preencha todos os campos corretamente!', 'error');
                 return;
             }
             
             const novoRegistro = {
                 data: data,
+                carteira: carteira,
                 absenteismo_diario: absenteismo_diario,
                 absenteismo_mensal: absenteismo_mensal,
                 turnover: turnover
             };
             
-            // Verificar se já existe registro da mesma data
-            const indiceExistente = registros.findIndex(reg => reg.data === data);
+            // Verificar se já existe registro da mesma data E carteira
+            const indiceExistente = registros.findIndex(reg => 
+                reg.data === data && reg.carteira === carteira
+            );
             
             if (indiceExistente !== -1) {
-                // Substituir registro existente
                 registros[indiceExistente] = novoRegistro;
                 mostrarMensagem('⚠️ Atualizando registro existente...', 'info');
             } else {
-                // Adicionar novo registro no início
                 registros.unshift(novoRegistro);
                 mostrarMensagem('➕ Adicionando novo registro...', 'info');
             }
             
-            // Desabilitar botão durante o salvamento
             const btnSalvar = document.getElementById('btnSalvar');
             btnSalvar.disabled = true;
             btnSalvar.textContent = 'Salvando...';
@@ -308,12 +407,12 @@
                 
                 if (response.ok) {
                     atualizarHistorico();
-                    mostrarMensagem('✅ Dados salvos com sucesso! Atualize o Power BI.', 'success');
+                    mostrarMensagem('✅ Dados salvos com sucesso!', 'success');
                     
-                    // Limpar campos de valores mas manter a data
                     document.getElementById('absenteismo_diario').value = '';
                     document.getElementById('absenteismo_mensal').value = '';
                     document.getElementById('turnover').value = '';
+                    document.getElementById('carteira').value = '';
                 } else {
                     mostrarMensagem('❌ Erro ao salvar. Tente novamente.', 'error');
                 }
@@ -322,21 +421,34 @@
                 mostrarMensagem('❌ Erro de conexão. Verifique sua internet.', 'error');
             } finally {
                 btnSalvar.disabled = false;
-                btnSalvar.textContent = '💾 Salvar Indicadores';
+                btnSalvar.textContent = '💾 Salvar';
             }
         }
         
         function atualizarHistorico() {
             const historyList = document.getElementById('historyList');
+            const filtroCarteira = document.getElementById('filtroCarteira').value;
+            const dataHoje = document.getElementById('data').value;
             
-            if (registros.length === 0) {
-                historyList.innerHTML = '<p style="color: #999; text-align: center;">Nenhum registro ainda.</p>';
+            // Filtrar apenas registros de hoje
+            let registrosHoje = registros.filter(reg => reg.data === dataHoje);
+            
+            // Aplicar filtro de carteira se selecionado
+            if (filtroCarteira) {
+                registrosHoje = registrosHoje.filter(reg => reg.carteira === filtroCarteira);
+            }
+            
+            if (registrosHoje.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; text-align: center;">Nenhum registro de hoje encontrado.</p>';
                 return;
             }
             
-            historyList.innerHTML = registros.map(reg => `
+            historyList.innerHTML = registrosHoje.map(reg => `
                 <div class="history-item">
-                    <div class="history-date">${formatarData(reg.data)}</div>
+                    <div class="history-header">
+                        <div class="history-date">${formatarData(reg.data)}</div>
+                        <div class="history-carteira">${NOMES_CARTEIRAS[reg.carteira] || reg.carteira}</div>
+                    </div>
                     <div class="history-values">
                         Abs. Diário: ${reg.absenteismo_diario}% | 
                         Abs. Mensal: ${reg.absenteismo_mensal}% | 
@@ -344,6 +456,36 @@
                     </div>
                 </div>
             `).join('');
+        }
+        
+        function baixarAnalitico() {
+            if (registros.length === 0) {
+                mostrarMensagem('Não há dados para baixar.', 'error');
+                return;
+            }
+            
+            // Criar CSV
+            let csv = 'Data,Carteira,Absenteismo Diario (%),Absenteismo Mensal (%),Turnover (%)\n';
+            
+            registros.forEach(reg => {
+                const nomeCarteira = NOMES_CARTEIRAS[reg.carteira] || reg.carteira;
+                csv += `${formatarData(reg.data)},${nomeCarteira},${reg.absenteismo_diario},${reg.absenteismo_mensal},${reg.turnover}\n`;
+            });
+            
+            // Download
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `analitico_indicadores_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            mostrarMensagem('✅ Analítico baixado com sucesso!', 'success');
         }
         
         function formatarData(dataStr) {
@@ -366,6 +508,8 @@
         
         // Event Listeners
         document.getElementById('indicadoresForm').addEventListener('submit', salvarIndicadores);
+        document.getElementById('filtroCarteira').addEventListener('change', atualizarHistorico);
+        document.getElementById('data').addEventListener('change', atualizarHistorico);
         
         // Carregar dados ao iniciar
         carregarDados();
